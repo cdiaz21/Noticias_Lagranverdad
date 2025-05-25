@@ -3,8 +3,8 @@ import os
 from github import Github
 
 def subir_a_github(html, nombre_archivo="index.html"):
-    token = os.getenv("GITHUB_TOKEN")
-    repo_nombre = os.getenv("GITHUB_REPO")
+    token = os.getenv("MY_GITHUB_TOKEN")
+    repo_nombre = os.getenv("MY_GITHUB_REPO")
     ruta_archivo = f"public/{nombre_archivo}"
 
     g = Github(token)
