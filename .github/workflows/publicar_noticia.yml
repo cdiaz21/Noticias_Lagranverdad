@@ -1,16 +1,20 @@
-name: Publicar Noticias
+name: Generar Noticias
 
 on:
-  workflow_dispatch:
+  push:
   schedule:
-    - cron: '0 */6 * * *'
+    - cron: '0 9 * * *'  # Todos los días a las 9 AM UTC
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - name: Instalar dependencias
         run: |
@@ -20,10 +24,10 @@ jobs:
       - name: Ejecutar script
         run: python main.py
 
-      - name: Commit y push
+      - name: Subir archivos generados
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add noticias/*.json
-          git commit -m "nueva noticia" || echo "Sin cambios"
-          git push https://cdiaz21:${{ secrets.GH_TOKEN }}@github.com/cdiaz21/Noticias_Lagranverdad.git
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add noticias/
+          git commit -m "Noticias del día $(date +'%Y-%m-%d')" || echo "Sin cambios"
+          git push
