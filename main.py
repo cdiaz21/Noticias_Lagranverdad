@@ -1,55 +1,65 @@
 import requests
 from bs4 import BeautifulSoup
 from transformers import pipeline
-import time
+import os
+import datetime
+import json
 
-# Inicializa el pipeline de Hugging Face para resumen
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+# Inicializar el modelo de Hugging Face
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
-# Lista de URLs de noticias
+# Lista de URLs a analizar
 urls = [
-    "https://elpais.com/internacional/2024-05-24/netanyahu-impulsa-en-gaza-la-agenda-mas-radical-de-la-extrema-derecha-israeli.html",
-    "https://elpais.com/internacional/2024-05-24/ultima-hora-del-conflicto-en-oriente-proximo-en-directo.html",
-    "https://elpais.com/deportes/2024-05-24/rafa-nadal-se-despide-de-roland-garros.html",
-    # Añade más URLs si quieres
+    "https://elpais.com/internacional/2025-05-25/netanyahu-impulsa-en-gaza-la-agenda-mas-radical-de-la-extrema-derecha-israeli.html",
+    "https://elpais.com/espana/2025-05-25/albares-pide-embargo-armas-israel.html"
 ]
 
-def obtener_texto_noticia(url):
-    try:
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        texto = " ".join([p.get_text() for p in soup.find_all('p')])
-        return texto.strip()
-    except Exception as e:
-        print(f"Error al obtener el contenido de {url}: {e}")
-        return ""
+# Carpeta de salida
+OUTPUT_DIR = "noticias"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def resumir_noticia(texto):
+def extraer_contenido(url):
     try:
-        resumen = summarizer(texto, max_length=180, min_length=50, do_sample=False)
+        res = requests.get(url, timeout=10)
+        soup = BeautifulSoup(res.text, "html.parser")
+        titulo = soup.find("title").get_text()
+        parrafos = soup.find_all("p")
+        texto = " ".join(p.get_text() for p in parrafos)
+        return titulo.strip(), texto.strip()
+    except Exception as e:
+        print(f"Error extrayendo texto de {url}: {e}")
+        return None, None
+
+def generar_resumen(texto):
+    try:
+        if len(texto) > 1024:
+            texto = texto[:1024]
+        resumen = summarizer(texto, max_length=150, min_length=40, do_sample=False)
         return resumen[0]['summary_text']
     except Exception as e:
         print(f"Error generando resumen: {e}")
-        return "Resumen no disponible."
+        return None
+
+def guardar_noticia(titulo, resumen):
+    fecha = datetime.datetime.now().strftime("%Y-%m-%d")
+    nombre_archivo = f"{fecha}_{titulo[:50].replace(' ', '_').replace('/', '')}.json"
+    ruta = os.path.join(OUTPUT_DIR, nombre_archivo)
+    with open(ruta, "w", encoding="utf-8") as f:
+        json.dump({"titulo": titulo, "resumen": resumen, "fecha": fecha}, f, ensure_ascii=False, indent=2)
+    print(f"Guardado: {ruta}")
 
 def main():
     print("Iniciando generación de noticias...")
-    noticias_resumidas = []
-
     for url in urls:
-        texto = obtener_texto_noticia(url)
-        if texto:
-            print(f"Generando resumen para: {url}")
-            resumen = resumir_noticia(texto)
-            noticias_resumidas.append({
-                "url": url,
-                "resumen": resumen
-            })
-            time.sleep(2)  # Evita sobrecargar el servidor
-
-    print("\nNoticias generadas:")
-    for noticia in noticias_resumidas:
-        print(f"\n{noticia['url']}\nResumen: {noticia['resumen']}")
+        titulo, texto = extraer_contenido(url)
+        if titulo and texto:
+            resumen = generar_resumen(texto)
+            if resumen:
+                guardar_noticia(titulo, resumen)
+            else:
+                print(f"No se pudo generar resumen para: {titulo}")
+        else:
+            print(f"No se pudo procesar: {url}")
 
 if __name__ == "__main__":
     main()
