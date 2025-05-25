@@ -1,7 +1,5 @@
-plaintext
+openai>=1.3.5
 requests
 beautifulsoup4
-lxml
-openai>=1.2.0  # Actualizado para asegurar versiones más recientes
 python-dotenv
-atproto
+PyGithub
