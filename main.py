@@ -1,62 +1,45 @@
-import os
 import feedparser
-import json
-from datetime import datetime
-from bs4 import BeautifulSoup
 from newspaper import Article
 from transformers import pipeline
+from datetime import datetime
+import os
 
-# Inicializar el modelo de resumen gratuito
-summarizer = pipeline("summarization", model="csebuetnlp/mT5_multilingual_XLSum")
+# CONFIG
+RSS_FEED_URLS = [
+    "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+]
 
-# Leer feeds
-with open("feeds.txt", "r") as f:
-    feeds = [line.strip() for line in f.readlines() if line.strip()]
-
-# Crear carpeta de noticias
+# Crear carpeta de salida
 os.makedirs("noticias", exist_ok=True)
 
-def limpiar_titulo(titulo):
-    return "".join(c if c.isalnum() or c in " _-" else "_" for c in titulo)[:100]
+# Cargar modelo de resumen
+summarizer = pipeline("summarization", model="csebuetnlp/mT5_multilingual_XLSum")
 
-for feed_url in feeds:
-    feed = feedparser.parse(feed_url)
-    for entry in feed.entries[:10]:
+# Procesar feeds
+for url in RSS_FEED_URLS:
+    feed = feedparser.parse(url)
+
+    for entry in feed.entries[:2]:  # solo 2 por feed para ejemplo
         try:
-            url = entry.link
-            titulo = entry.title
-            fecha = datetime.now().strftime("%Y-%m-%d")
-            nombre_archivo = f"{fecha}_{limpiar_titulo(titulo)}.json"
-            ruta_archivo = os.path.join("noticias", nombre_archivo)
-
-            # Saltar si ya existe
-            if os.path.exists(ruta_archivo):
-                continue
-
-            # Extraer contenido del artículo
-            article = Article(url)
+            article = Article(entry.link)
             article.download()
             article.parse()
-            texto = article.text
 
-            # Si está vacío, ignorar
-            if not texto or len(texto.split()) < 50:
-                continue
+            texto = article.text[:1000]  # Limitar longitud para evitar errores
+            resumen = summarizer(texto)[0]['summary_text']
 
-            # Generar resumen
-            resumen = summarizer(texto, max_length=200, min_length=50, do_sample=False)[0]["summary_text"]
+            titulo_archivo = entry.title.strip().replace(" ", "_")[:50]
+            fecha = datetime.utcnow().strftime("%Y-%m-%d")
+            nombre = f"noticias/{fecha}_{titulo_archivo}.md"
 
-            # Guardar noticia
-            noticia = {
-                "titulo": titulo,
-                "url": url,
-                "resumen": resumen,
-                "fecha": fecha
-            }
-            with open(ruta_archivo, "w", encoding="utf-8") as f:
-                json.dump(noticia, f, ensure_ascii=False, indent=2)
+            with open(nombre, "w", encoding="utf-8") as f:
+                f.write(f"# {entry.title}\n\n")
+                f.write(f"**Link original:** {entry.link}\n\n")
+                f.write(f"**Resumen generado por IA:**\n\n")
+                f.write(resumen)
 
-            print(f"Noticia guardada: {nombre_archivo}")
+            print(f"Generado: {nombre}")
 
         except Exception as e:
-            print(f"Error con '{entry.title}': {e}")
+            print(f"Error con {entry.link}: {e}")
