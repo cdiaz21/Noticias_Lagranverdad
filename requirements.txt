@@ -1,6 +1,7 @@
+plaintext
 requests
 beautifulsoup4
 lxml
-openai>=1.0.0
+openai>=1.2.0  # Actualizado para asegurar versiones más recientes
 python-dotenv
 atproto
