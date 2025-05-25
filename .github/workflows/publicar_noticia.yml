@@ -1,33 +1,38 @@
-name: Publicar Noticia
+name: Generar y publicar noticias
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 8 * * *"
+    - cron: '0 12 * * *'  # Ejecutar todos los días a las 12:00 UTC
 
 jobs:
-  build:
+  generar_y_publicar:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Configurar Python
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: |
-          pip install torch requests beautifulsoup4 transformers
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run script
+      - name: Ejecutar script principal
         run: python main.py
 
-      - name: Commit y push de noticias
+      - name: Configurar Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add noticias/
-          git commit -m "nueva noticia" || echo "Sin cambios"
-          git push
+
+      - name: Hacer commit y push si hay cambios
+        run: |
+          git add noticias/*.json
+          git diff --cached --quiet || git commit -m "nueva noticia"
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
