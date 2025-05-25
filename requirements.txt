@@ -4,3 +4,4 @@ beautifulsoup4
 feedparser
 lxml
 lxml-html-clean
+torch
