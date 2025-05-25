@@ -5,3 +5,5 @@ feedparser
 lxml
 lxml-html-clean
 torch
+protobuf
+tiktoken
