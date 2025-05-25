@@ -1,0 +1,3 @@
+https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada
+https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/economia/portada
+https://rss.nytimes.com/services/xml/rss/nyt/World.xml
