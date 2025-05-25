@@ -2,3 +2,4 @@ newspaper3k
 transformers
 beautifulsoup4
 feedparser
+lxml 
