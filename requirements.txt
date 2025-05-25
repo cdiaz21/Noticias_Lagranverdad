@@ -2,4 +2,5 @@ newspaper3k
 transformers
 beautifulsoup4
 feedparser
-lxml 
+lxml
+lxml-html-clean
