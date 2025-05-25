@@ -1,26 +1,27 @@
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
 import os
-import requests
 
-BLOGGER_ACCESS_TOKEN = os.getenv("BLOGGER_ACCESS_TOKEN")
-BLOG_ID = os.getenv("BLOG_ID")
+# Asegúrate de que estas variables de entorno estén configuradas correctamente
+BLOGGER_BLOG_ID = os.getenv("BLOGGER_BLOG_ID")
+SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-def publicar_en_blogger(titulo, resumen, link):
-    url = f"https://www.googleapis.com/blogger/v3/blogs/{BLOG_ID}/posts/"
-    headers = {
-        "Authorization": f"Bearer {BLOGGER_ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    contenido = f"<h2>{titulo}</h2><p>{resumen}</p><p><a href='{link}'>Leer más</a></p>"
-    data = {
-        "kind": "blogger#post",
-        "blog": {"id": BLOG_ID},
-        "title": titulo,
-        "content": contenido
-    }
+def publicar_en_blogger(titulo, resumen, url):
+    if not BLOGGER_BLOG_ID or not SERVICE_ACCOUNT_FILE:
+        print("Error: Faltan las credenciales de Blogger.")
+        return
 
-    response = requests.post(url, headers=headers, json=data)
-    
-    if response.status_code == 200:
-        print(f"Publicado en Blogger: {titulo}")
-    else:
-        print(f"Error al publicar en Blogger: {response.status_code}, {response.text}")
+    try:
+        credentials = service_account.Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE,
+            scopes=["https://www.googleapis.com/auth/blogger"]
+        )
+        service = build("blogger", "v3", credentials=credentials)
+        post = {
+            "title": titulo,
+            "content": f"{resumen}<br><br><a href='{url}'>Leer más</a>"
+        }
+        service.posts().insert(blogId=BLOGGER_BLOG_ID, body=post).execute()
+        print("Entrada publicada en Blogger correctamente.")
+    except Exception as e:
+        print(f"Error al publicar en Blogger: {e}")
