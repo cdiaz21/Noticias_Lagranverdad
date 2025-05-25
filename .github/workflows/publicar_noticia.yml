@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests beautifulsoup4 transformers
+          pip install torch requests beautifulsoup4 transformers
 
       - name: Run script
         run: python main.py
