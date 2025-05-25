@@ -1,6 +1,6 @@
 requests
 beautifulsoup4
 lxml
-openai
+openai==0.28.1
 python-dotenv
 atproto
