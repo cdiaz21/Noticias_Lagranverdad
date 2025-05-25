@@ -1,7 +1,9 @@
 from bs4 import BeautifulSoup
-import openai
+from openai import OpenAI
 import os
 import requests
+
+client = OpenAI()  # Nuevo cliente OpenAI
 
 def get_news():
     feed_urls = [
@@ -21,9 +23,8 @@ def get_news():
     return noticias
 
 def generar_resumen(titulo, link):
-    openai.api_key = os.getenv("OPENAI_API_KEY")
     prompt = f"Resume la siguiente noticia en 3 frases breves y claras: {titulo}\n{link}"
-    respuesta = openai.ChatCompletion.create(
+    respuesta = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=150
