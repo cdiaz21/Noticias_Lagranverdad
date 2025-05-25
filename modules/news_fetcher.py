@@ -3,7 +3,8 @@ from openai import OpenAI
 import os
 import requests
 
-client = OpenAI()  # Nuevo cliente OpenAI
+# Cliente oficial
+client = OpenAI()
 
 def get_news():
     feed_urls = [
@@ -24,9 +25,11 @@ def get_news():
 
 def generar_resumen(titulo, link):
     prompt = f"Resume la siguiente noticia en 3 frases breves y claras: {titulo}\n{link}"
-    respuesta = client.chat.completions.create(
+    response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[
+            {"role": "user", "content": prompt}
+        ],
         max_tokens=150
     )
-    return respuesta.choices[0].message.content.strip()
+    return response.choices[0].message.content.strip()
