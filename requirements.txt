@@ -1,4 +1,4 @@
+newspaper3k
 transformers
-requests
 beautifulsoup4
-torch
+feedparser
