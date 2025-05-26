@@ -1,23 +1,36 @@
-from modules.rss import obtener_noticias
+import os
+from modules.noticias import obtener_noticias
 from modules.resumen import generar_resumen
-from modules.telegram import enviar_telegram
+from modules.telegram import publicar_en_telegram
 from modules.blogger import publicar_en_blogger
 from modules.bluesky import publicar_en_bluesky
+from newspaper import Article
+
+device = "cpu"
+print(f"Device set to use {device}")
 
 noticias = obtener_noticias()
-print("NOTICIAS:", noticias)  # DEBUG: muestra las noticias obtenidas
+print(f"NOTICIAS: {noticias}")
 
 if not noticias:
     print("NO SE ENCONTRARON NOTICIAS.")
 else:
     for noticia in noticias:
-        print(f"PROCESANDO NOTICIA: {noticia['titulo']}")  # DEBUG
-        resumen = generar_resumen(noticia["contenido"])
-        print(f"RESUMEN: {resumen}")  # DEBUG
+        print(f"PROCESANDO NOTICIA: {noticia['titulo']}")
+        
+        try:
+            article = Article(noticia["url"])
+            article.download()
+            article.parse()
+            contenido = article.text
 
-        # Aquí puedes decidir cuál de estas publicar o activar todas:
-        enviar_telegram(noticia["titulo"], resumen, noticia["url"])
-        publicar_en_blogger(noticia["titulo"], resumen, noticia["url"])
-        publicar_en_bluesky(noticia["titulo"], resumen, noticia["url"])
+            resumen = generar_resumen(contenido)
 
-print("¡Proceso de noticias completado correctamente!")
+            mensaje = f"**{noticia['titulo']}**\n\n{resumen}\n\nFuente: {noticia['url']}"
+            
+            publicar_en_telegram(mensaje)
+            publicar_en_blogger(noticia["titulo"], resumen, noticia["url"])
+            publicar_en_bluesky(noticia["titulo"], resumen, noticia["url"])
+        
+        except Exception as e:
+            print(f"ERROR procesando la noticia: {e}")
