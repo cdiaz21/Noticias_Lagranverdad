@@ -29,7 +29,7 @@ if not bluesky_handle or not bluesky_app_password:
     print("Error: Faltan las credenciales de Bluesky.")
 
 if not telegram_bot_token or not telegram_chat_id:
-    print("Faltan variables de entorno para
+   print("Faltan variables de entorno para Telegram.") 
 # Variables de entorno para Blogger
 blogger_credentials_json = os.getenv("BLOGGER_CREDENTIALS_JSON")
 
