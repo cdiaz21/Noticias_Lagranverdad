@@ -1,46 +1,32 @@
 import feedparser
-from openai import OpenAI
-import os
 
-# Inicializa el cliente con la clave desde variables de entorno
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Puedes agregar más feeds aquí
+FEEDS = [
+    "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional.xml",
+    "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+    "https://www.theguardian.com/world/rss"
+]
 
-# Función para generar un resumen con OpenAI
-def generar_resumen(titulo, link):
-    prompt = f"Genera un resumen breve y objetivo de esta noticia:\n\nTítulo: {titulo}\nLink: {link}"
-
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.7
-    )
-
-    return response.choices[0].message.content.strip()
-
-# Función para obtener noticias de varias fuentes RSS y resumirlas
-def get_news():
-    urls = [
-        "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
-        "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
-        "https://feeds.bbci.co.uk/news/rss.xml"
-    ]
-
+def obtener_noticias():
     noticias = []
 
-    for url in urls:
-        feed = feedparser.parse(url)
-        for entry in feed.entries[:3]:  # Solo toma las primeras 3 noticias por fuente
-            titulo = entry.title
-            link = entry.link
+    for feed_url in FEEDS:
+        feed = feedparser.parse(feed_url)
+        for entrada in feed.entries:
+            if "title" in entrada and "summary" in entrada and "link" in entrada:
+                titulo = entrada.title
+                resumen = entrada.summary
+                url = entrada.link
 
-            try:
-                resumen = generar_resumen(titulo, link)
-                noticias.append({
-                    "titulo": titulo,
-                    "link": link,
-                    "resumen": resumen
-                })
-            except Exception as e:
-                print(f"Error generando resumen para '{titulo}': {str(e)}")
+                # Filtro básico opcional (por ejemplo, evitar duplicados o por palabra clave)
+                if len(resumen) > 100 and "deportes" not in titulo.lower():
+                    noticias.append({
+                        "titulo": titulo,
+                        "resumen": resumen,
+                        "url": url
+                    })
+
+            if len(noticias) >= 3:  # Solo tomamos 3 noticias para limitar la carga
+                break
 
     return noticias
