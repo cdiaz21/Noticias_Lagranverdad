@@ -9,3 +9,4 @@ oauth2client
 bluesky
 beautifulsoup4
 atproto
+newspaper3k
