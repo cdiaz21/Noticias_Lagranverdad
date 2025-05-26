@@ -1,12 +1,6 @@
-feedparser
-transformers
-tiktoken
-blobfile
-requests
-python-telegram-bot
-google-api-python-client
-oauth2client
-bluesky
-beautifulsoup4
-atproto
 newspaper3k
+lxml
+lxml_html_clean
+transformers
+requests
+python-dotenv
