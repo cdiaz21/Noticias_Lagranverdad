@@ -1,19 +1,26 @@
-from telegram import Bot
 import os
+import requests
 
-# Asegúrate de que estas variables de entorno estén configuradas correctamente
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+def publicar_en_telegram(mensaje):
+    token = os.getenv("TELEGRAM_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
 
-def enviar_telegram(titulo, resumen, url):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("Error: Faltan las credenciales de Telegram.")
+    if not token or not chat_id:
+        print("Faltan variables de entorno para Telegram.")
         return
 
-    bot = Bot(token=TELEGRAM_BOT_TOKEN)
-    mensaje = f"📰 {titulo}\n\n{resumen}\n\n🔗 {url}"
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": mensaje,
+        "parse_mode": "HTML"
+    }
+
     try:
-        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=mensaje)
-        print("Mensaje enviado a Telegram correctamente.")
+        response = requests.post(url, data=payload)
+        if response.status_code != 200:
+            print(f"Error al enviar mensaje: {response.text}")
+        else:
+            print("Mensaje enviado a Telegram correctamente.")
     except Exception as e:
-        print(f"Error al enviar mensaje a Telegram: {e}")
+        print(f"Error al conectar con la API de Telegram: {e}")
