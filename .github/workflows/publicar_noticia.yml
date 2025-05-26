@@ -22,12 +22,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install torch
+          pip install torch newspaper3k google-api-python-client google-auth google-auth-oauthlib
 
       - name: Ejecutar script principal
         run: python main.py
         env:
-          BLOGGER_CREDENTIALS_JSON: ${{ secrets.BLOGGER_CREDENTIALS_JSON }}
+          BLOGGER_CREDENTIALS_JSON_BASE64: ${{ secrets.BLOGGER_CREDENTIALS_JSON_BASE64 }}
           BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
           BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
