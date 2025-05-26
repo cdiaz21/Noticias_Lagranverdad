@@ -10,29 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar repositorio
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Configurar Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install torch newspaper3k google-api-python-client google-auth google-auth-oauthlib
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name: Ejecutar script principal
+      - name: Run script
         run: python main.py
         env:
-          BLOGGER_CREDENTIALS_JSON_BASE64: ${{ secrets.BLOGGER_CREDENTIALS_JSON_BASE64 }}
-          BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
-          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          BLOGGER_CREDENTIALS_JSON_BASE64: ${{ secrets.BLOGGER_CREDENTIALS_JSON_BASE64 }}
+          BLOGGER_BLOG_ID: ${{ secrets.BLOGGER_BLOG_ID }}
 
       - name: Confirmación final
         run: echo "¡Proceso de noticias completado correctamente!"
