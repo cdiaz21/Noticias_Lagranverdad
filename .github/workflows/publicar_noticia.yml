@@ -25,7 +25,7 @@ jobs:
           pip install torch
 
       
-        - name: Ejecutar script principal
+      - name: Ejecutar script principal
         run: python main.py
         env:
           BLOGGER_CREDENTIALS_JSON: ${{ secrets.BLOGGER_CREDENTIALS_JSON }}
