@@ -1,8 +1,9 @@
+feedparser
 newspaper3k
-lxml
-lxml_html_clean
 transformers
-requests
-python-dotenv
-google-api-python-client
+torch
 atproto
+google-api-python-client
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
