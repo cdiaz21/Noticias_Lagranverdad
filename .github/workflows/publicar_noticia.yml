@@ -24,8 +24,15 @@ jobs:
           pip install -r requirements.txt
           pip install torch
 
-      - name: Ejecutar script principal
+      
+        - name: Ejecutar script principal
         run: python main.py
+        env:
+          BLOGGER_CREDENTIALS_JSON: ${{ secrets.BLOGGER_CREDENTIALS_JSON }}
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
       - name: Confirmación final
         run: echo "¡Proceso de noticias completado correctamente!"
