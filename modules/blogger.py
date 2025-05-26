@@ -2,7 +2,6 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 import os
 
-# Asegúrate de que estas variables de entorno estén configuradas correctamente
 BLOGGER_BLOG_ID = os.getenv("BLOGGER_BLOG_ID")
 SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
