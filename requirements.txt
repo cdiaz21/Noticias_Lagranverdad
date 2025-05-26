@@ -4,3 +4,4 @@ lxml_html_clean
 transformers
 requests
 python-dotenv
+google-api-python-client
