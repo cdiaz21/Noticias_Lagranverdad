@@ -1,20 +1,17 @@
 from googleapiclient.discovery import build
 from google.oauth2 import service_account
 import os
-import json
 
 BLOGGER_BLOG_ID = os.getenv("BLOGGER_BLOG_ID")
-BLOGGER_CREDENTIALS_JSON = os.getenv("BLOGGER_CREDENTIALS_JSON")
 
 def publicar_en_blogger(titulo, resumen, url):
-    if not BLOGGER_BLOG_ID or not BLOGGER_CREDENTIALS_JSON:
+    if not BLOGGER_BLOG_ID or not os.path.exists("blogger_credentials.json"):
         print("Error: Faltan las credenciales de Blogger.")
         return
 
     try:
-        credentials_dict = json.loads(BLOGGER_CREDENTIALS_JSON)
-        credentials = service_account.Credentials.from_service_account_info(
-            credentials_dict,
+        credentials = service_account.Credentials.from_service_account_file(
+            "blogger_credentials.json",
             scopes=["https://www.googleapis.com/auth/blogger"]
         )
         service = build("blogger", "v3", credentials=credentials)
