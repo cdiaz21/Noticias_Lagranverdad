@@ -1,7 +1,6 @@
 from atproto import Client
 import os
 
-# Asegúrate de que estas variables de entorno estén configuradas correctamente
 BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE")
 BLUESKY_PASSWORD = os.getenv("BLUESKY_PASSWORD")
 
