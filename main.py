@@ -1,4 +1,5 @@
 import json
+from modules.resumen import generar_resumen
 from resumen import generar_resumen
 from bluesky import publicar_bluesky
 from telegram import publicar_telegram
