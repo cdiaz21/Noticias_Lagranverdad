@@ -1,36 +1,60 @@
-import os
-from modules.noticias import obtener_noticias
-from modules.resumen import generar_resumen
-from modules.telegram import publicar_en_telegram
-from modules.blogger import publicar_en_blogger
-from modules.bluesky import publicar_en_bluesky
-from newspaper import Article
+import json
+from resumen import generar_resumen
+from bluesky import publicar_bluesky
+from telegram import publicar_telegram
+from blogger import publicar_blogger
 
-device = "cpu"
-print(f"Device set to use {device}")
+# Ejemplo de fuente de noticias (puedes sustituir esto por tu scraper real)
+def cargar_noticias():
+    return [
+        {
+            "titulo": "Ejemplo de noticia",
+            "url": "https://www.bbc.com/news/world-europe-68125849"
+        },
+        {
+            "titulo": "Noticia inválida",
+            "url": "https://www.ejemplo.com/falla"
+        }
+    ]
 
-noticias = obtener_noticias()
-print(f"NOTICIAS: {noticias}")
+# Procesar y publicar noticias
+def procesar_noticias():
+    noticias = cargar_noticias()
 
-if not noticias:
-    print("NO SE ENCONTRARON NOTICIAS.")
-else:
     for noticia in noticias:
-        print(f"PROCESANDO NOTICIA: {noticia['titulo']}")
-        
+        titulo = noticia["titulo"]
+        url = noticia["url"]
+
+        print(f"\n📥 Procesando: {titulo}")
         try:
-            article = Article(noticia["url"])
-            article.download()
-            article.parse()
-            contenido = article.text
-
-            resumen = generar_resumen(contenido)
-
-            mensaje = f"<b>{noticia['titulo']}</b>\n\n{resumen}\n\nFuente: {noticia['url']}"
-
-            publicar_en_telegram(mensaje)
-            publicar_en_blogger(noticia["titulo"], resumen, noticia["url"])
-            publicar_en_bluesky(noticia["titulo"], resumen, noticia["url"])
-        
+            resumen = generar_resumen(url)
         except Exception as e:
-            print(f"ERROR procesando la noticia: {e}")
+            print(f"❌ Error al generar resumen: {e}")
+            continue
+
+        contenido = f"📰 {titulo}\n\n🧠 {resumen}\n\n🔗 {url}"
+
+        # Publicar en Bluesky
+        try:
+            publicar_bluesky(contenido)
+            print("✅ Publicado en Bluesky")
+        except Exception as e:
+            print(f"⚠️ Error en Bluesky: {e}")
+
+        # Publicar en Telegram
+        try:
+            publicar_telegram(contenido)
+            print("✅ Publicado en Telegram")
+        except Exception as e:
+            print(f"⚠️ Error en Telegram: {e}")
+
+        # Publicar en Blogger
+        try:
+            publicar_blogger(titulo, resumen, url)
+            print("✅ Publicado en Blogger")
+        except Exception as e:
+            print(f"⚠️ Error en Blogger: {e}")
+
+# Ejecutar todo
+if __name__ == "__main__":
+    procesar_noticias()
