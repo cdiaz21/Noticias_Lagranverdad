@@ -1,15 +1,19 @@
+from newspaper import Article
 from transformers import pipeline
 
-# Cargamos el pipeline de resumen
-resumidor = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
-def generar_resumen(texto, max_length=130, min_length=30):
-    if not texto:
-        return "Sin contenido para resumir."
-
+def generar_resumen(url):
     try:
-        resumen = resumidor(texto, max_length=max_length, min_length=min_length, do_sample=False)
+        article = Article(url)
+        article.download()
+        article.parse()
+        texto = article.text
+
+        if not texto.strip():
+            raise ValueError("Artículo vacío")
+
+        resumen = summarizer(texto, max_length=130, min_length=30, do_sample=False)
         return resumen[0]['summary_text']
     except Exception as e:
-        print("Error generando resumen:", e)
-        return "Resumen no disponible."
+        raise RuntimeError(f"Error generando resumen: {str(e)}")
