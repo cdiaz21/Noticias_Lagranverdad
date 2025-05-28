@@ -1,6 +1,7 @@
 from newspaper import Article
 from transformers import pipeline
 
+# Carga el modelo de resumen
 summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
 def generar_resumen(url):
